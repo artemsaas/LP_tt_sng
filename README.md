@@ -1,90 +1,125 @@
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captcha Verification</title>
+    <title>Open Link</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f3f4f6;
-            font-family: Arial, sans-serif;
             margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to right bottom, rgb(26, 32, 44), rgb(74, 29, 150), rgb(91, 33, 182));
+            color: #fff;
+            font-family: Arial, sans-serif;
+            height: 100vh;
             text-align: center;
+        }
+        #container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #image {
             max-width: 100%;
-            width: 400px;
+            height: auto;
+            margin: 20px 0;
         }
         h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-size: 3rem;
+            margin: 0;
+        }
+        .button-container {
+            margin-top: 20px;
         }
         button {
-            background-color: #2563eb;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background-color: #4CAF50;
             color: white;
-            padding: 10px 15px;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
-            width: 100%;
+            margin: 0.5rem;
         }
         button:hover {
-            background-color: #1d4ed8;
+            background-color: #45a049;
         }
-        .g-recaptcha {
-            margin-bottom: 15px;
-            transform: scale(0.77); /* Уменьшаем размер капчи */
-            transform-origin: 0 0; /* Позиционируем уменьшенную капчу в левый верхний угол */
-        }
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            h1 {
-                font-size: 1.2rem;
-            }
-            button {
-                font-size: 14px;
-            }
+        select {
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            margin-top: 20px;
         }
     </style>
-    <!-- Добавлен параметр hl для языка -->
-    <script src="https://www.google.com/recaptcha/api.js?hl=ru" async defer></script> 
 </head>
 <body>
-    <div class="container">
-        <h1>Пожалуйста, подтвердите, что вы не робот</h1>
-        <form id="captchaForm">
-            <div class="g-recaptcha" data-sitekey="6LekGs8qAAAAAEot_mA3tPhn4oiBcjCv4UgPyiW0"></div>
-            <button type="submit">Перейти</button>
-        </form>
+    <div id="container">
+        <h1>Приветик</h1>
+        
+        <!-- Language Selection Dropdown -->
+        <select id="languageSelect" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+        </select>
+
+        <div class="button-container">
+            <button id="openLinkBtn" onclick="openLink()">Open </button>
+            <button id="copyLinkBtn" onclick="copyLink()">Copy </button>
+        </div>
     </div>
-
+ 
     <script>
-        const form = document.getElementById('captchaForm');
-        const redirectUrl = "https://mb9pmr0.meethotlove.com/lwyrlwm?s1=sngtt"; // Убедитесь, что ссылка правильная
+        const targetUrl = 'https://mb9pmr0.meethotlove.com/lwyrlwm?s1=sngtt'; // Замените на нужный URL
 
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const response = grecaptcha.getResponse();
-
-            if (response.length === 0) {
-                alert("Пожалуйста, решите капчу!");
+        // Function to change button text based on language selection
+        function changeLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            if (lang === 'ru') {
+                document.getElementById('openLinkBtn').textContent = 'Открыть ссылку';
+                document.getElementById('copyLinkBtn').textContent = 'Копировать ссылку';
             } else {
-                // Перенаправление после успешного решения капчи
-                window.location.href = redirectUrl;
+                document.getElementById('openLinkBtn').textContent = 'Open Link';
+                document.getElementById('copyLinkBtn').textContent = 'Copy Link';
+            }
+        }
+
+        // Initial language setup
+        document.addEventListener("DOMContentLoaded", () => {
+            const userLang = navigator.language || navigator.userLanguage; 
+            if (userLang.includes('ru')) {
+                document.getElementById('languageSelect').value = 'ru';
+                changeLanguage();
+            } else {
+                document.getElementById('languageSelect').value = 'en';
+                changeLanguage();
             }
         });
+
+        const openLink = () => {
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (isAndroid) {
+                let formattedUrl = targetUrl;
+                if (!targetUrl.startsWith("https://") && !targetUrl.startsWith("http://")) {
+                    formattedUrl = "https://" + targetUrl;
+                }
+                window.location.href = `intent://${formattedUrl.replace('https://', '')}#Intent;scheme=https;package=com.android.chrome;end`;
+            } else if (isIOS) {
+                window.location.replace(`x-safari-${targetUrl}`);
+            } else {
+                window.location.href = targetUrl;
+            }
+        };
+
+        const copyLink = () => {
+            navigator.clipboard.writeText(targetUrl).then(() => {
+                alert('Link copied to clipboard!');
+            }, (err) => {
+                console.error('Failed to copy link: ', err);
+            });
+        };
     </script>
 </body>
 </html>
