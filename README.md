@@ -100,16 +100,20 @@
             const isAndroid = /Android/i.test(navigator.userAgent);
             const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+            let formattedUrl = targetUrl;
+            if (!formattedUrl.startsWith("https://") && !formattedUrl.startsWith("http://")) {
+                formattedUrl = "https://" + formattedUrl;
+            }
+
             if (isAndroid) {
-                let formattedUrl = targetUrl;
-                if (!targetUrl.startsWith("https://") && !targetUrl.startsWith("http://")) {
-                    formattedUrl = "https://" + targetUrl;
-                }
+                // Для Android используем Intent для открытия через Chrome
                 window.location.href = `intent://${formattedUrl.replace('https://', '')}#Intent;scheme=https;package=com.android.chrome;end`;
             } else if (isIOS) {
-                window.location.replace(`x-safari-${targetUrl}`);
+                // Для iOS используем стандартный переход по ссылке
+                window.location.href = formattedUrl;
             } else {
-                window.location.href = targetUrl;
+                // Для остальных устройств открываем ссылку напрямую
+                window.location.href = formattedUrl;
             }
         };
 
